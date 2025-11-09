@@ -10,9 +10,7 @@ providers:
     api_key_env: "UNIFIED_API_KEY"
     base_url: "https://api.agicto.cn/v1"
     models: 
-      "qwen-vl-plus": "通义千问Turbo模型"
-      "qwen3-235b-a22b": "通义千问Plus模型"
-      "qwen-vl-max": "通义千问Max模型"
+      "qwen3-vl-plus": "混合推理模型, MLLM, 商业版(未开源)"
 
   openai:
     api_key_env: "UNIFIED_API_KEY"

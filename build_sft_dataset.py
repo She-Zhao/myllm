@@ -69,7 +69,7 @@ def build_item_single_image(
                     image_path = Path(image_dir) / image_name
                     absolute_image_path = image_path.absolute().as_posix()      # 转化为绝对路径，再as_posix()强制转化为/连接
                     new_entry = {
-                        'id': image_name,
+                        'id': image_path.stem,
                         'image': [absolute_image_path],
                         'conversation': [
                             {'from': 'human', 'value': prompt},
@@ -96,7 +96,7 @@ def build_item_multi_image(
         image_dir (str): 图像文件夹
         prompt (str): 对应的提示词
         sft_dataset_path (str): 保存的json文件路径
-        mode (Literal['prefix', 'suffix'], optional): 若同一组图像前缀相同则设置为prefix, 后缀不同设置为suffix.
+        mode (Literal['prefix', 'suffix'], optional): 若同一组图像前缀相同则设置为prefix, 后缀相同设置为suffix.
     """
 
     groups = defaultdict(list)
@@ -163,8 +163,12 @@ def build_item_multi_image(
         print(f"写入 JSONL 时出错: {e}")
 
 if __name__ == "__main__":
-    image_dir = './test_images'
-    prompt = load_prompt(pe_json_path='./example/pe.json', idx=5)
-    sft_dataset_path = './example/sft_dataset_desc.jsonl'
+    image_dir = './example/images'                                      # 输入图像文件夹
+    prompt = load_prompt(pe_json_path='./example/pe.json', idx=2)       # 从pe.json中加载相应的prompt
+    sft_dataset_path = './example/sft_dataset_cot_multi.jsonl'          # 输出文件的路径 
+    
+    # 输入单张图像，生成sft格式数据
     build_item_single_image(image_dir, prompt, sft_dataset_path)
-    # build_item_multi_image(image_dir, prompt, sft_dataset_path)
+   
+    # 输入多张图像，生成sft格式数据 
+    build_item_multi_image(image_dir, prompt, sft_dataset_path, mode='prefix')

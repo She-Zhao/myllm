@@ -5,12 +5,16 @@ API调用示例
 import os
 from openai import OpenAI
 from openai import AsyncOpenAI
-from model_config import ModelConfigManager
+from llm_toolkit import ModelConfigManager
 
-# # 在代码开头设置代理环境变量
+
+# 如果采用openai等外网官方网站作为base_url，需要设置下代理的映射端口
 # os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7897'
 # os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7897'
 # os.environ['ALL_PROXY'] = 'http://127.0.0.1:7897'
+
+# 设置在通过该网址访问时不使用任何代理，否则在开启vpn通过该网站调用api会出错
+os.environ['NO_PROXY'] = 'api.agicto.cn'
 
 def initialize_client(api_key, base_url):
     if not api_key:
@@ -80,9 +84,9 @@ def chat_multi(config_manager: ModelConfigManager, provider: str, model: str):
 
 if __name__ == "__main__":
     config_manager = ModelConfigManager()
-    provider = 'openai'
-    model = 'gpt-4.1'
+    provider = 'qwen'           # 提供商
+    model = 'qwen3-vl-plus'     # 模型名称
 
     # chat_single(config_manager, provider, model)       # 单轮对话测试
-    chat_multi(config_manager, provider, model)      # 多轮对话测试
+    chat_multi(config_manager, provider, model)         # 多轮对话测试
     

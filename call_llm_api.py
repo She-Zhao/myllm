@@ -13,15 +13,17 @@ import base64
 import asyncio
 from tqdm import tqdm
 import argparse
-from tqdm.asyncio import tqdm_asyncio
 from typing import List, Dict, Any
 from openai import AsyncOpenAI, APIError
-# from openai import OpenAI
-from model_config import ModelConfigManager  # 假设你有这个配置文件
+from llm_toolkit import ModelConfigManager  
 
-os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7897'
-os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7897'
-os.environ['ALL_PROXY'] = 'http://127.0.0.1:7897'
+# 如果采用openai等外网官方网站作为base_url，需要设置下代理的映射端口
+# os.environ['HTTP_PROXY'] = 'http://127.0.0.1:xxxx'
+# os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:xxxx'
+# os.environ['ALL_PROXY'] = 'http://127.0.0.1:xxxx'
+
+# 设置在通过该网址访问时不使用任何代理，否则在开启vpn通过该网站调用api会出错
+os.environ['NO_PROXY'] = 'api.agicto.cn'
 
 def initialize_client(api_key: str, base_url: str) -> AsyncOpenAI:
     if not api_key:
@@ -138,7 +140,6 @@ async def process_single_task(
                 # API 成功了，但返回了空的 'choices' 列表或 None
                 print(f"❌ API 警告 (ID: {sample['id']}): 响应中缺少 'choices'。")
                 sample['conversation'][1]['value'] = 'ERROR: Empty choices list'
-            # --- 🚀 健壮性修复结束 ---
         
         except APIError as e: # 更具体地捕获 API 错误
             print(f"❌ API 错误 (ID: {sample['id']}): {e} ")
@@ -248,18 +249,17 @@ def main():
     asyncio.run(process_batch_task(args))
 
 if __name__ == "__main__":
+    # 通过命令行直接运行
     # main()
     
+    # 通过代码测试
     test_args = argparse.Namespace()
-    
-    # 3. 在这里硬编码您的调试参数
-    # -----------------------------------------------
-    test_args.provider = 'qwen'
-    test_args.model = 'qwen-vl-plus' # 替换为您的测试模型
-    test_args.input_file = './example/sft_dataset_cot.jsonl' # 替换为您的测试输入文件
-    test_args.output_file = './example/sft_dataset_cot_result.jsonl' # 替换为您的测试输出文件
-    test_args.concurrency = 10    # 调试时使用较低的并发
-    # -----------------------------------------------
+
+    test_args.provider = 'qwen'                                         # 提供商
+    test_args.model = 'qwen3-vl-plus'                                   # 模型名称
+    test_args.input_file = './example/sft_dataset_cot.jsonl'            # 输入文件
+    test_args.output_file = './example/sft_dataset_cot_result.jsonl'    # 调用api后得到的输出文件
+    test_args.concurrency = 10                                          # 并发数
     
     print(f"--- 正在从脚本中启动 call_llm_api_robust (调试模式) ---")
     print(f"   Provider: {test_args.provider}")
@@ -268,8 +268,6 @@ if __name__ == "__main__":
     print(f"   Output: {test_args.output_file}")
     print(f"   Concurrency: {test_args.concurrency}")
     
-    # 4. 运行主协程
-    # asyncio.run() 会自动创建和管理事件循环
     try:
         asyncio.run(process_batch_task(test_args))
         print(f"--- 脚本调用执行完毕 ---")
