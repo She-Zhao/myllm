@@ -5,8 +5,8 @@ API调用示例
 import os
 from openai import OpenAI
 from openai import AsyncOpenAI
-from llm_toolkit import ModelConfigManager
-
+from llm_toolkit import APIConfigManager
+import argparse
 
 # 如果采用openai等外网官方网站作为base_url，需要设置下代理的映射端口
 # os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7897'
@@ -25,7 +25,7 @@ def initialize_client(api_key, base_url):
         base_url=base_url
     )
 
-def chat_single(config_manager: ModelConfigManager, provider: str, model: str):
+def chat_single(config_manager: APIConfigManager, provider: str, model: str):
     model_config = config_manager.get_model_config(provider, model)
     client = initialize_client(api_key=model_config['api_key'], base_url=model_config['base_url'])
     
@@ -49,7 +49,7 @@ def chat_single(config_manager: ModelConfigManager, provider: str, model: str):
     # 对于思考模型，可以通过reasoning_content访问思维链
     # print(f"LLM🤖: {response.choices[0].message.reasoning_content}")
 
-def chat_multi(config_manager: ModelConfigManager, provider: str, model: str):
+def chat_multi(config_manager: APIConfigManager, provider: str, model: str):
     model_config = config_manager.get_model_config(provider, model)
     client = initialize_client(api_key=model_config['api_key'], base_url=model_config['base_url'])
     system_prompt = "You are a helpful assistant, please add '>_<' after answering each question."
@@ -82,11 +82,26 @@ def chat_multi(config_manager: ModelConfigManager, provider: str, model: str):
         conversation.append({"role": "assistant", "content": ai_response})
         print(f"LLM🤖: {ai_response}")
 
-if __name__ == "__main__":
-    config_manager = ModelConfigManager()
-    provider = 'qwen'           # 提供商
-    model = 'qwen3-vl-plus'     # 模型名称
+def main():
+    parser = argparse.ArgumentParser(description = '对话机器人，用于测试API是否能正常调用')
+    parser.add_argument('--provider', required=True, type=str, help='模型提供商')
+    parser.add_argument('--model', required=True, type=str, help='模型名称') 
 
-    # chat_single(config_manager, provider, model)       # 单轮对话测试
-    chat_multi(config_manager, provider, model)         # 多轮对话测试
+    args = parser.parse_args()
+    
+    config_manager = APIConfigManager()
+    # chat_single(config_manager, provider, model)              # 单轮对话测试
+    chat_multi(config_manager, args.provider, args.model)         # 多轮对话测试
+      
+if __name__ == "__main__":
+    # 通过命令行调用
+    main()
+    
+    # 通过代码直接调用
+    # config_manager = APIConfigManager()
+    # provider = 'qwen'           # 提供商
+    # model = 'qwen3-vl-plus'     # 模型名称
+
+    # # chat_single(config_manager, provider, model)       # 单轮对话测试
+    # chat_multi(config_manager, provider, model)         # 多轮对话测试
     

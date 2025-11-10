@@ -1,3 +1,3 @@
-from .config_manager import ModelConfigManager
+from .config_manager import APIConfigManager
 
-__all__ = ['ModelConfigManager']
+__all__ = ['APIConfigManager']

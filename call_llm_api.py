@@ -15,7 +15,7 @@ from tqdm import tqdm
 import argparse
 from typing import List, Dict, Any
 from openai import AsyncOpenAI, APIError
-from llm_toolkit import ModelConfigManager  
+from llm_toolkit import APIConfigManager  
 
 # 如果采用openai等外网官方网站作为base_url，需要设置下代理的映射端口
 # os.environ['HTTP_PROXY'] = 'http://127.0.0.1:xxxx'
@@ -106,7 +106,7 @@ async def process_single_task(
     semaphore: asyncio.Semaphore
 ) -> Dict[str, Any]:
     """提交单个API调用的协程函数, 当调用失败的时候会自动保存'ERROR',
-    可以对sample['conversation'][1]['value']进行判断来剔除调用失败的数据
+    后续处理的时候可以通过判断sample['conversation'][1]['value'] == 'ERROR'来剔除调用失败的数据
 
     Args:
         client (AsyncOpenAI): OpenAI客户端（支持异步）
@@ -176,7 +176,7 @@ async def process_batch_task(args):
     print(f"    并发数量: {args.concurrency}")
     
     # 初始化模型
-    config_manager = ModelConfigManager()
+    config_manager = APIConfigManager()
     model_config = config_manager.get_model_config(args.provider, args.model)
     client = initialize_client(api_key=model_config['api_key'], base_url=model_config['base_url'])
     print(f"    模型: {args.provider} - {args.model}")
@@ -249,27 +249,28 @@ def main():
     asyncio.run(process_batch_task(args))
 
 if __name__ == "__main__":
-    # 通过命令行直接运行
-    # main()
+    # 通过命令行运行
+    main()
     
-    # 通过代码测试
-    test_args = argparse.Namespace()
+    # 通过代码运行
+    # test_args = argparse.Namespace()
 
-    test_args.provider = 'qwen'                                         # 提供商
-    test_args.model = 'qwen3-vl-plus'                                   # 模型名称
-    test_args.input_file = './example/sft_dataset_cot.jsonl'            # 输入文件
-    test_args.output_file = './example/sft_dataset_cot_result.jsonl'    # 调用api后得到的输出文件
-    test_args.concurrency = 10                                          # 并发数
+    # 修改下面这部分参数即可
+    # test_args.provider = 'qwen'                                         # 提供商
+    # test_args.model = 'qwen3-vl-plus'                                   # 模型名称
+    # test_args.input_file = './example/sft_dataset_single.jsonl'            # 输入文件
+    # test_args.output_file = './example/sft_dataset_single_result.jsonl'    # 调用api后得到的输出文件
+    # test_args.concurrency = 10                                          # 并发数
     
-    print(f"--- 正在从脚本中启动 call_llm_api_robust (调试模式) ---")
-    print(f"   Provider: {test_args.provider}")
-    print(f"   Model: {test_args.model}")
-    print(f"   Input: {test_args.input_file}")
-    print(f"   Output: {test_args.output_file}")
-    print(f"   Concurrency: {test_args.concurrency}")
+    # print(f"--- 正在从脚本中启动 call_llm_api_robust (调试模式) ---")
+    # print(f"   Provider: {test_args.provider}")
+    # print(f"   Model: {test_args.model}")
+    # print(f"   Input: {test_args.input_file}")
+    # print(f"   Output: {test_args.output_file}")
+    # print(f"   Concurrency: {test_args.concurrency}")
     
-    try:
-        asyncio.run(process_batch_task(test_args))
-        print(f"--- 脚本调用执行完毕 ---")
-    except Exception as e:
-        print(f"--- 脚本调用时发生错误: {e} ---")
+    # try:
+    #     asyncio.run(process_batch_task(test_args))
+    #     print(f"--- 脚本调用执行完毕 ---")
+    # except Exception as e:
+    #     print(f"--- 脚本调用时发生错误: {e} ---")

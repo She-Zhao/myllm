@@ -11,7 +11,7 @@ from typing import Literal
 from collections import defaultdict
 import json
 from tqdm import tqdm
-
+import argparse
 
 def load_prompt(pe_json_path: str='./dataset/pe.json', idx: int=0) -> str:
     """根据输入的idx，加载相应的prompt
@@ -88,7 +88,7 @@ def build_item_multi_image(
     image_dir: str,
     prompt: str,
     sft_dataset_path: str,
-    mode: Literal['prefix', 'suffix'] = 'prefix'
+    multi_mode: Literal['prefix', 'suffix'] = 'prefix'
 ) -> None:
     """根据图像和prompt生成相应的jsonl数据,多图模式,需保证同一组输入的前缀或者后缀相同。
 
@@ -96,7 +96,7 @@ def build_item_multi_image(
         image_dir (str): 图像文件夹
         prompt (str): 对应的提示词
         sft_dataset_path (str): 保存的json文件路径
-        mode (Literal['prefix', 'suffix'], optional): 若同一组图像前缀相同则设置为prefix, 后缀相同设置为suffix.
+        multi_mode (Literal['prefix', 'suffix'], optional): 若同一组图像前缀相同则设置为prefix, 后缀相同设置为suffix.
     """
 
     groups = defaultdict(list)
@@ -125,11 +125,11 @@ def build_item_multi_image(
                     part = image_path.stem.split('_')
                     absolute_image_path = image_path.absolute().as_posix()
                     
-                    if mode == 'prefix':
+                    if multi_mode == 'prefix':
                         prefix = part[0]
                         groups[prefix].append(absolute_image_path)
                         
-                    elif mode == 'suffix':
+                    elif multi_mode == 'suffix':
                         suffix = part[-1]
                         groups[suffix].append(absolute_image_path)
                     else:
@@ -162,13 +162,39 @@ def build_item_multi_image(
     except Exception as e:
         print(f"写入 JSONL 时出错: {e}")
 
+
+def main():
+    parser = argparse.ArgumentParser(description='构建SFT数据集')
+    parser.add_argument('--image_dir', required=True, type=str, default='./example/images', help='输入图像文件夹路径')
+    parser.add_argument('--output_file', type=str, default='./example/sft_dataset.jsonl', help='输出JSONL文件路径')
+    parser.add_argument('--pe_json_path', type=str, default='./example/pe.json', help='prompt JSON文件路径')
+    parser.add_argument('--prompt_idx', type=int, default=0, help='使用的prompt索引')
+    parser.add_argument('--mode', type=str, choices=['single', 'multi'], default='single', help='模式选择: single(单图) 或 multi(多图)')
+    parser.add_argument('--multi_mode', type=str, choices=['prefix', 'suffix'], default='prefix', help='多图模式下的分组方式: prefix(前缀) 或 suffix(后缀)')
+    
+    args = parser.parse_args()
+    
+    # 加载提示词
+    prompt = load_prompt(pe_json_path=args.pe_json_path, idx=args.prompt_idx)
+    
+    # 根据模式调用相应的函数
+    if args.mode == 'single':
+        build_item_single_image(args.image_dir, prompt, args.output_file)
+    elif args.mode == 'multi':
+        build_item_multi_image(args.image_dir, prompt, args.output_file, mode=args.multi_mode)
+    else:
+        raise ValueError(f"不支持的模式: {args.mode}")
+
 if __name__ == "__main__":
+    # 通过命令行调用(不建议)
+    # main()
+    
     image_dir = './example/images'                                      # 输入图像文件夹
     prompt = load_prompt(pe_json_path='./example/pe.json', idx=2)       # 从pe.json中加载相应的prompt
-    sft_dataset_path = './example/sft_dataset_cot_multi.jsonl'          # 输出文件的路径 
+    output_file = './example/sft_dataset_single.jsonl'          # 输出文件的路径 
     
     # 输入单张图像，生成sft格式数据
-    build_item_single_image(image_dir, prompt, sft_dataset_path)
+    build_item_single_image(image_dir, prompt, output_file)
    
     # 输入多张图像，生成sft格式数据 
-    build_item_multi_image(image_dir, prompt, sft_dataset_path, mode='prefix')
+    # build_item_multi_image(image_dir, prompt, output_file, multi_mode='prefix')

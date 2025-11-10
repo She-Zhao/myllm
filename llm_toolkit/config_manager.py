@@ -3,11 +3,11 @@ import yaml
 from typing import Dict, List, Optional
 from collections import defaultdict
 
-class ModelConfigManager:
+class APIConfigManager:
     """
-    模型配置管理器
+    模型API配置管理器
     """
-    def __init__(self, config_path='./model_config.yaml'):
+    def __init__(self, config_path='config/api_config.yaml'):
         self.config_path = config_path
         self.config = self._load_config()
         
@@ -52,12 +52,12 @@ class ModelConfigManager:
 
 
 if __name__ == "__main__":
-    modelconfigmanager = ModelConfigManager()
-    all_providers = modelconfigmanager.list_providers()
+    apiconfigmanager = APIConfigManager()
+    all_providers = apiconfigmanager.list_providers()
     print(f"所有的供应商: {all_providers}")
     
     provider = "deepseek"
-    print(modelconfigmanager.list_models(provider))
+    print(apiconfigmanager.list_models(provider))
     
     model = "deepseek-chat"
-    print(modelconfigmanager.get_model_config(provider, model))
+    print(apiconfigmanager.get_model_config(provider, model))

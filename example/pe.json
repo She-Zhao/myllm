@@ -1,6 +1,6 @@
 {
   "prompt1": {
-    "comment": "You are an expert...",
+    "comment": "这部分可以添加各个版本提示词的注释，作为提示防止混淆不同版本提示词",
     "prompt_text": "Analyze this image: <image>\n\n{specific_task_details}"
   },
   "prompt2": {
