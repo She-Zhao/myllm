@@ -165,7 +165,7 @@ def build_item_multi_image(
 
 def main():
     parser = argparse.ArgumentParser(description='构建SFT数据集')
-    parser.add_argument('--image_dir', required=True, type=str, default='./example/images', help='输入图像文件夹路径')
+    parser.add_argument('--image_dir', type=str, default='./example/images', help='输入图像文件夹路径')
     parser.add_argument('--output_file', type=str, default='./example/sft_dataset.jsonl', help='输出JSONL文件路径')
     parser.add_argument('--pe_json_path', type=str, default='./example/pe.json', help='prompt JSON文件路径')
     parser.add_argument('--prompt_idx', type=int, default=0, help='使用的prompt索引')
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     
     image_dir = './example/images'                                      # 输入图像文件夹
     prompt = load_prompt(pe_json_path='./example/pe.json', idx=2)       # 从pe.json中加载相应的prompt
-    output_file = './example/sft_dataset_single.jsonl'          # 输出文件的路径 
+    output_file = './example/sft_dataset_single1.jsonl'          # 输出文件的路径 
     
     # 输入单张图像，生成sft格式数据
     build_item_single_image(image_dir, prompt, output_file)

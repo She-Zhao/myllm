@@ -1,6 +1,6 @@
 providers:
   deepseek:
-    api_key_env: "DEEPSEEK_API_KEY"
+    api_key_env: "DEEPSEEK_API_KEY" 
     base_url: "https://api.deepseek.com"
     models:
       "deepseek-chat": "非推理模型,LLM"
