@@ -1,0 +1,5 @@
+openai==2.7.1
+PyQt5==5.15.11
+PyQt5_sip==12.15.0
+PyYAML==6.0.3
+tqdm==4.64.1
